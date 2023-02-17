@@ -6,8 +6,7 @@
 #define MAX_VISITAS 100
 
 //Variáveis globais
-int animais = 0; //Variavel que guarda o numero de animais que já foram inseridos.
-int numAnimal = 0; //Variavel que inicia a contagem do numero dos animais
+int numAnimal = 3; //Variavel que inicia a contagem do numero dos animais
 
 //Estruturas 
 typedef struct data{
@@ -80,11 +79,12 @@ int menuGestaoAnimais(){
     return opcao;
 }
 
-int menuConsultasAnimasis(){
+int menuConsultasAnimais(){
     int opcao;
 
     puts("||-------------MENU CONSULTAS ANIMAIS-------------||");
     puts("||      1 - Consultar dados Animal                ||");
+    puts("||      2 - Listar todos os animais               ||");
     puts("||      2 - Listar animais por especie            ||");
     puts("||      3 - Listar amnimais com mais tempo no ZOO ||");
     puts("||      4 - Listar animais com menos tempo no ZOO ||");
@@ -142,67 +142,193 @@ int menuVisitas(){
 void inserirAnimal(ANIMAL animais[]){
     animais[numAnimal].numero = numAnimal;
     printf("Insira o nome do animal: ");
-    scanf("%s", &animais[numAnimal].nome);
+    scanf("%s", animais[numAnimal].nome);
     printf("Insira a sua especie: ");
-    scanf("%s", &animais[numAnimal].especie);
+    scanf("%s", animais[numAnimal].especie);
     printf("Insira a sua idade: ");
-    scanf("%d");
+    scanf("%d", &animais[numAnimal].idade);
     numAnimal++;
+}
+
+int pesquisarAnimal(int nAnimal,ANIMAL animais[]){
+    int i;
+    for(i=0;i<numAnimal;i++){
+        if(nAnimal == animais[i].numero){
+            return i;
+            puts("Encontrou!!");
+        }
+    }
+    return 31;
+}
+
+void imprimirAnimal(int i, ANIMAL animais[]){
+    printf("---Animal[%d]-------------------\n", i+1);
+    printf("\tNome: %s\n", animais[i].nome);
+    printf("\tEspecie: %s\n", animais[i].especie);
+    printf("\tIdade: %d\n", animais[i].idade);
+}
+
+void alterarDadosAnimal(ANIMAL animais[],int nAnimal){
+    int i = pesquisarAnimal(nAnimal,animais);
+    if(i == 31){
+        printf("Não existe nenhum animal com o numero [%d].\n", nAnimal);
+    }else{
+        printf("Insira o nome do animal: ");
+        scanf("%s", animais[i].nome);
+        printf("Insira a sua especie: ");
+        scanf("%s", animais[i].especie);
+        printf("Insira a sua idade: ");
+        scanf("%d", &animais[i].idade);
+    }
+}
+
+void consultarAnimal(int nAnimal, ANIMAL animais[]){
+    int i = pesquisarAnimal(nAnimal,animais);
+    imprimirAnimal(i,animais);
+}
+
+void listarAnimais(ANIMAL animais[]){
+    int i;
+    for(i=0;i<numAnimal;i++){
+        printf("---Animal[%d]-------------------\n", i+1);
+        printf("\tNome: %s\n", animais[i].nome);
+        printf("\tEspecie: %s\n", animais[i].especie);
+        printf("\tIdade: %d\n", animais[i].idade);
+        //printf("\tData de entrada: %d/%d/%d\n", animais[i].data_entrada.dia, animais[i].data_entrada.mes, animais[i].data_entrada.ano);
+    }
+}
+
+void listarAnimaisPorEspecie(ANIMAL animais[]){
+    int i,j;
+    char especie[255];
+    for(i=0;i<numAnimal;i++){
+        strcpy(especie,animais[i].especie);
+        imprimirAnimal(i,animais);
+        for(j=i+1;j<numAnimal;j++){
+            if(strcmp(especie, animais[j].especie) == 0){
+                imprimirAnimal(j,animais);
+            }
+        }
+        i=j;    
+    }
 }
 
 int main(void){
 
     //Arrays das estruturas
-    ANIMAL animais[MAX_ANIMAIS];
-    TRATADOR tratadores[MAX_TRATADORES];
-    VISITA visitas[MAX_VISITAS];
+    ANIMAL animais[MAX_ANIMAIS],
+    jefer={.nome = "Jefer\0",
+            .numero = 1,
+            .idade = 10,
+            .especie = "Girafa\0"},
+    frida={.nome = "Frida\0",
+            .numero = 2,
+            .idade = 2,
+            .especie = "Tomate"},
+    dildo={.nome= "Dildo\0",
+            .numero = 3,
+            .idade = 1,
+            .especie = "Girafa"};
+
+    animais[0]=jefer;
+    animais[1]=frida;
+    animais[2]=dildo;
+    //TRATADOR tratadores[MAX_TRATADORES];
+    //VISITA visitas[MAX_VISITAS];
     //Variaveis
 
-    switch (menuPrincipal())
-    {
-        case 1:
-            switch (menuGestaoAnimais())
-            {
-                case 1:
-                    if(numAnimal < MAX_ANIMAIS){
-                        inserirAnimal(animais);
-                    }else{
-                        printf("Ja atingiu o limite de animais que podem ser inseridos[30]!!\n");
-                    }
-                    break;
-                
-                default:
-                    break;
-            }
-            break;
-        case 2:
-            switch (menuGestaoTratadores())
-            {
-                case 1:
-                    /* code */
-                    break;
-                
-                default:
-                    break;
-            }
-            break;
-        case 3:
-            switch (menuVisitas())
-            {
-                case 1:
-                    /* code */
-                    break;
-                
-                default:
-                    break;
-            }
-            break;
-        case 0:
 
+    while (1)
+    {   
+        int nAnimal;
+        int opcao = menuPrincipal();
+        if (opcao == 0) {
             break;
-        default:
-            break;
+        }
+        switch (opcao){
+            case 1:
+                while(1){
+                int opcao1= menuGestaoAnimais();
+                if(opcao1 == 0){
+                    break;
+                }
+                switch (opcao1)
+                {
+                    case 1:
+                        if(numAnimal < MAX_ANIMAIS){
+                            inserirAnimal(animais);
+                        }else{
+                            printf("Ja atingiu o limite de animais que podem ser inseridos[30]!!\n");
+                        }
+                        break;
+                    case 2:
+                        printf("Insira o numero do animal que deseja: ");
+                        fflush(stdin);
+                        scanf("%d", &nAnimal); 
+                        alterarDadosAnimal(animais,nAnimal);
+                        break;
+                    case 3:
+                        while(1){
+                            int nAnimal, opcao2 = menuConsultasAnimais();
+                            if (opcao2 == 0){
+                                break;
+                            }
+                            switch (opcao2)
+                            {
+                            case 1:
+                                printf("Insira o numero do animal desejado: ");
+                                fflush(stdin);
+                                scanf("%d", &nAnimal);
+                                consultarAnimal(nAnimal,animais);
+                                break;
+                            case 2:
+                                listarAnimais(animais);
+                                break;
+                            case 3:
+                                listarAnimaisPorEspecie(animais);
+                                break;
+                            
+                            default:
+                                break;
+                            }
+                        }
+                        break;  
+                    default:
+                        break;
+                }
+                }
+            case 2:
+                switch (menuGestaoTratadores())
+                {
+                    case 1:
+                        /* code */
+                        break;
+                    
+                    default:
+                        break;
+                }
+                break;
+            case 3:
+                switch (menuVisitas())
+                {
+                    case 1:
+                        /* code */
+                        break;
+                    
+                    default:
+                        break;
+                }
+                break;
+            case 0:
+
+                break;
+            default:
+                break;
+        }
     }
+    
+    
     
     return 0;
 }
+
