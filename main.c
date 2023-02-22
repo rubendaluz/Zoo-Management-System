@@ -7,7 +7,7 @@
 
 //Variáveis globais
 int numAnimal = 3; //Variavel que inicia a contagem do numero dos animais
-
+int numTratadores = 0;
 //Estruturas 
 typedef struct data{
     int dia, mes, ano;
@@ -32,7 +32,7 @@ typedef struct tratador
     int numero;
     char nome[255];
     int telemovel;
-    int estado; //Pode ser: 1-Ativo || 0-Não Ativo
+    int ativo; //Pode ser: 1-Ativo || 0-Não Ativo
 }TRATADOR;
 
 typedef struct visita
@@ -83,12 +83,12 @@ int menuConsultasAnimais(){
     int opcao;
 
     puts("||-------------MENU CONSULTAS ANIMAIS-------------||");
-    puts("||      1 - Consultar dados Animal                ||");
+    puts("||      1 - Consultar dados de um Animal          ||");
     puts("||      2 - Listar todos os animais               ||");
-    puts("||      2 - Listar animais por especie            ||");
-    puts("||      3 - Listar amnimais com mais tempo no ZOO ||");
-    puts("||      4 - Listar animais com menos tempo no ZOO ||");
-    puts("||      5 - Listar animais por ano de entrada     ||");
+    puts("||      3 - Listar animais por especie            ||");
+    puts("||      4 - Animal mais antigo no ZOO             ||");
+    puts("||      5 - Animal mais novo no ZOO               ||");
+    puts("||      6 - Listar animais por ano de entrada     ||");
     puts("||      0 - Sair                                  ||");
     puts("||------------------------------------------------||");
 
@@ -147,6 +147,9 @@ void inserirAnimal(ANIMAL animais[]){
     scanf("%s", animais[numAnimal].especie);
     printf("Insira a sua idade: ");
     scanf("%d", &animais[numAnimal].idade);
+    printf("Insira a data de entrada do animal: ");
+    scanf("%d%d%d", &animais[numAnimal].data_entrada.dia,
+    &animais[numAnimal].data_entrada.mes,&animais[numAnimal].data_entrada.ano);
     numAnimal++;
 }
 
@@ -166,6 +169,8 @@ void imprimirAnimal(int i, ANIMAL animais[]){
     printf("\tNome: %s\n", animais[i].nome);
     printf("\tEspecie: %s\n", animais[i].especie);
     printf("\tIdade: %d\n", animais[i].idade);
+    printf("\tData de entrada: %d/%d/%d\n", animais[i].data_entrada.dia,
+    animais[i].data_entrada.mes,animais[i].data_entrada.ano);
 }
 
 void alterarDadosAnimal(ANIMAL animais[],int nAnimal){
@@ -173,12 +178,7 @@ void alterarDadosAnimal(ANIMAL animais[],int nAnimal){
     if(i == 31){
         printf("Não existe nenhum animal com o numero [%d].\n", nAnimal);
     }else{
-        printf("Insira o nome do animal: ");
-        scanf("%s", animais[i].nome);
-        printf("Insira a sua especie: ");
-        scanf("%s", animais[i].especie);
-        printf("Insira a sua idade: ");
-        scanf("%d", &animais[i].idade);
+        inserirAnimal(animais);
     }
 }
 
@@ -190,28 +190,248 @@ void consultarAnimal(int nAnimal, ANIMAL animais[]){
 void listarAnimais(ANIMAL animais[]){
     int i;
     for(i=0;i<numAnimal;i++){
-        printf("---Animal[%d]-------------------\n", i+1);
-        printf("\tNome: %s\n", animais[i].nome);
-        printf("\tEspecie: %s\n", animais[i].especie);
-        printf("\tIdade: %d\n", animais[i].idade);
-        //printf("\tData de entrada: %d/%d/%d\n", animais[i].data_entrada.dia, animais[i].data_entrada.mes, animais[i].data_entrada.ano);
+        imprimirAnimal(i,animais);
     }
 }
 
 void listarAnimaisPorEspecie(ANIMAL animais[]){
-    int i,j;
+    int i,j,x=0;
     char especie[255];
+    ANIMAL arrayOrdenado[MAX_ANIMAIS];
     for(i=0;i<numAnimal;i++){
         strcpy(especie,animais[i].especie);
-        imprimirAnimal(i,animais);
         for(j=i+1;j<numAnimal;j++){
             if(strcmp(especie, animais[j].especie) == 0){
-                imprimirAnimal(j,animais);
+                arrayOrdenado[x] = animais[j];
             }
-        }
-        i=j;    
+        } 
+        if (i==numAnimal-1)break;    
+    }
+
+    for(i=0;i<numAnimal;i++){
+        imprimirAnimal(i,arrayOrdenado);
     }
 }
+
+void listarAnimaisEspecie(char especie[255], ANIMAL animais[]){
+    int i,j=0;
+    for(i=0;i<numAnimal;i++){
+        if(strcmpi(especie,animais[i].especie) == 0){
+            imprimirAnimal(i,animais);
+            j=1;
+        }
+    }
+    if(j==0){
+        printf("Não existem animais da especie: %s", especie);
+    }
+}
+int animalMaisNovo(ANIMAL animais[]){
+    ANIMAL mais_velho;
+    int i,j;
+    mais_velho = animais[0];
+    for(i=1;i<numAnimal;i++){
+        if(mais_velho.data_entrada.ano < animais[i].data_entrada.ano){
+            mais_velho = animais[i];
+            j=i;
+        }else if (mais_velho.data_entrada.ano == animais[i].data_entrada.ano){ 
+            if(mais_velho.data_entrada.mes < animais[i].data_entrada.mes){
+                mais_velho = animais[i];
+                j=i;
+            }else if(mais_velho.data_entrada.mes == animais[i].data_entrada.mes){ 
+                if(mais_velho.data_entrada.dia < animais[i].data_entrada.dia){
+                    mais_velho = animais[i];
+                    j=i;
+                }
+            }
+        }
+    }
+    return j;
+}
+
+int animalMaisAntigo(ANIMAL animais[]){
+    ANIMAL mais_novo;
+    int i,j;
+    mais_novo = animais[0];
+    for(i=1;i<numAnimal;i++){
+        if(mais_novo.data_entrada.ano > animais[i].data_entrada.ano){
+            mais_novo = animais[i];
+            j=i;
+        }else if(mais_novo.data_entrada.ano == animais[i].data_entrada.ano){ 
+            if(mais_novo.data_entrada.mes > animais[i].data_entrada.mes){
+                mais_novo = animais[i];
+                j=i;
+            }else if(mais_novo.data_entrada.mes > animais[i].data_entrada.mes){ 
+                if(mais_novo.data_entrada.dia > animais[i].data_entrada.dia){
+                    mais_novo = animais[i];
+                    j=i;
+                }
+            }
+        }
+    }
+    return j;
+}
+
+void listarAnimaisPorAnoEntrada(int ano,ANIMAL animais[]){
+    int i,j=0;
+    for(i=0;i<numAnimal;i++){
+        if(ano == animais[i].data_entrada.ano){
+            imprimirAnimal(i,animais);
+            j=1;
+        }
+    }
+    if(j==0)
+        printf("Não existem animais que deram entrada no ano %d.\n", ano);
+}
+
+//Funções referentes ao tratadores
+// INSERIR NOVO TRATADOR
+ void inserirTratador(TRATADOR *tratadores, int *numTratadores){
+    printf("Insrir novo tratador");
+    printf("Numero: ");
+    scanf("%d", &tratadores[*numTratadores].numero);
+    printf("Nome: ");
+    scanf("%s", tratadores[*numTratadores].nome);
+    printf("Telemovel: ");
+    scanf("%s", tratadores[*numTratadores].telemovel);
+    tratadores[*numTratadores].ativo = 1;
+    (*numTratadores)++;
+    printf("Tratador inserido com sucesso!");
+
+ }
+
+// ALTERAR DADOS DE UM TRATADOR
+  void alterarDadosTratador(TRATADOR *tratadores, int numTratadores){
+    int numero;
+    printf("Alterar dados de um tratador\n");
+    printf("Numero do Tratador: ");
+    scanf("%d", &numero);
+    for (size_t i = 0; i < numTratadores; i++)
+    {
+        if (tratadores[i].numero == numero)
+        {
+            int opcao;
+            printf("O que pretende alterar?\n");
+            printf("1 - Nome\n");
+            printf("2 - Telemovel\n");
+            printf("3 - Cancelar\n");
+            printf(">Opcao: ");
+            scanf("%d", &opcao);
+
+            switch (opcao)
+            {
+            case 1:
+                printf("Insira o novo NOME: ");
+                scanf("%s", tratadores[i].nome);
+                printf("Nome do tratador atualizado com sucesso!\n");
+                break;
+            case 2:
+                printf("Insira o novo TELEMOVEL: ");
+                scanf("%c", tratadores[i].telemovel);
+                scanf("Telemovwl do tratador atualizado com sucesso!\n");
+                break;
+            case 3:
+                printf("Operacao cancelada.\n");
+                break;
+            default:
+                printf("Opcao invalida!\n");
+                break;
+            }
+        }       
+        printf("Tratador nao encontrado\n");
+    }
+    
+  }
+
+
+
+// ALTERAR ESTADO DE UM TRATADOR
+void alterarEstadoTratador(TRATADOR *tratadores, int numTratadores){
+    int numero,i, ativo;
+    printf("Ativar/Desativar um tratador\n");
+    printf("Insira o numero do tratador: ");
+    scanf("%d", &numero);
+    for (i = 0; i < numTratadores; i++)
+    {
+        if (tratadores[i].numero == numero)
+        {
+           printf("Ativo (1) ou nao ativo (0): ");
+           scanf("%d", &ativo);
+           tratadores[i].ativo = ativo;
+           printf("Estado do tratador %s atualizado para %s com sucesso!\n", tratadores[i].nome, ativo ? "ativo" : "nao ativo");
+           return;
+        }
+        
+    }
+    
+    printf("Tratador com o numero %d não encontrado!\n", numero);
+}
+
+
+// CONSULTAR DADOS DE UM TRATADOOR 
+void consultarDadosTratador(TRATADOR *tratadores, int numTratadores) { 
+    int numero;
+    printf("Consultar dados de um tratador\n");
+    printf("Numero do tratador: ");
+    scanf("%d", &numero);
+    for (int i = 0; i < numTratadores; i++)
+    {
+        if (tratadores[i].numero == numero)
+        {
+            printf("Nome: %s\n", tratadores[i].nome);
+            printf("Telefone: %s\n", tratadores[i].telemovel);
+            printf("Estado: %s\n", tratadores[i].ativo ? "Ativo" : "Nao ativo");
+            return;
+        }
+    }
+    printf("Tratador nao encontrado.\n");
+}
+
+// LISTA DOS TRATADORES ATIVOS
+void listarTratadoresAtivos(TRATADOR *tratadores, int numTratadores) {
+    printf("Lista dos tratadores ativos\n");
+    for (int i = 0; i < numTratadores; i++) {
+        if (tratadores[i].ativo) {
+            printf("Numero: %d\n", tratadores[i].numero);
+            printf("Nome: %s\n", tratadores[i].nome);
+            printf("Telemovel: %s\n", tratadores[i].telemovel);
+            printf("Ativo: %d\n", tratadores[i].ativo);
+        }
+    }
+}
+
+
+
+// PESQUISAR TRATADOR POR NOME
+void pesquisarTratadorNome(TRATADOR *tratadores, int numTratadores) {
+    char nome[50];
+    int encontrado = 0;
+    char resposta;
+
+    do {
+        printf("Pesquisar tratador por nome\n");
+        printf("Nome: ");
+        scanf("%s", nome);
+        encontrado = 0;
+
+        for (int i = 0; i < numTratadores; i++) {
+            if (strcmp(tratadores[i].nome, nome) == 0) {
+                printf("Numero: %d\n", tratadores[i].numero);
+                printf("Nome: %s\n", tratadores[i].nome);
+                printf("Telefone: %s\n", tratadores[i].telemovel);
+                printf("Ativo: %d\n", tratadores[i].ativo);
+                encontrado = 1;
+            }
+        }
+
+        if (!encontrado) {
+            printf("Nenhum tratador encontrado com o nome %s.\n", nome);
+            printf("Deseja pesquisar novamente? (S/N): ");
+            scanf(" %c", &resposta);
+        }
+
+    } while (resposta != 'N');
+}
+
 
 int main(void){
 
@@ -220,20 +440,29 @@ int main(void){
     jefer={.nome = "Jefer\0",
             .numero = 1,
             .idade = 10,
-            .especie = "Girafa\0"},
+            .especie = "Girafa\0",
+            .data_entrada.ano = 2012,
+            .data_entrada.mes = 10,
+            .data_entrada.dia = 2},
     frida={.nome = "Frida\0",
             .numero = 2,
             .idade = 2,
-            .especie = "Tomate"},
+            .especie = "Cegonha",
+            .data_entrada.ano = 2015,
+            .data_entrada.mes = 10,
+            .data_entrada.dia = 2},
     dildo={.nome= "Dildo\0",
             .numero = 3,
             .idade = 1,
-            .especie = "Girafa"};
+            .especie = "Girafa",
+            .data_entrada.ano = 2012,
+            .data_entrada.mes = 9,
+            .data_entrada.dia = 2};
 
     animais[0]=jefer;
     animais[1]=frida;
     animais[2]=dildo;
-    //TRATADOR tratadores[MAX_TRATADORES];
+    TRATADOR tratadores[MAX_TRATADORES];
     //VISITA visitas[MAX_VISITAS];
     //Variaveis
 
@@ -242,8 +471,15 @@ int main(void){
     {   
         int nAnimal;
         int opcao = menuPrincipal();
+        char confirmar_saida;
         if (opcao == 0) {
-            break;
+            printf("Pretende realmente sair? Se Sim insira[Y/y], se Nao insira[N/n]");
+            fflush(stdin);
+            scanf("%c", &confirmar_saida);
+            if(confirmar_saida == 'Y' || confirmar_saida == 'y'){
+                printf("Programa encerrado!!\n\n");
+                break;
+            }
         }
         switch (opcao){
             case 1:
@@ -269,7 +505,8 @@ int main(void){
                         break;
                     case 3:
                         while(1){
-                            int nAnimal, opcao2 = menuConsultasAnimais();
+                            char especie[255];
+                            int nAnimal,ano,i, opcao2 = menuConsultasAnimais();
                             if (opcao2 == 0){
                                 break;
                             }
@@ -285,7 +522,24 @@ int main(void){
                                 listarAnimais(animais);
                                 break;
                             case 3:
-                                listarAnimaisPorEspecie(animais);
+                                printf("Insira especie desejada: ");
+                                scanf("%s", especie);
+                                listarAnimaisEspecie(especie,animais);
+                                break;
+
+                            case 4:
+                                i = animalMaisAntigo(animais);
+                                printf("O animal mais antigo e o %s com o numero de identificacao [%d]\n", animais[i].nome, animais[i].numero);
+                                break;
+                            case 5:
+                                i = animalMaisNovo(animais);
+                                printf("O animal mais novo e o %s com o numero de identificacao [%d]\n", animais[i].nome, animais[i].numero);
+                                break;
+                            case 6:
+                                printf("Insira o ano desejado: ");
+                                fflush(stdin);
+                                scanf("%d", &ano);
+                                listarAnimaisPorAnoEntrada(ano,animais);
                                 break;
                             
                             default:
@@ -294,33 +548,66 @@ int main(void){
                         }
                         break;  
                     default:
+                        printf("Esta opcao nao existe ou e invalida!!!\n");
                         break;
                 }
-                }
+            }
+                break;
             case 2:
-                switch (menuGestaoTratadores())
-                {
-                    case 1:
-                        /* code */
+                int opcao;
+                while(1){
+                    if((opcao=menuGestaoTratadores())==0)
                         break;
-                    
-                    default:
-                        break;
+                    switch (opcao)
+                    {
+                        case 1:
+                            inserirTratador(tratadores,numTratadores);
+                            break;
+                        case 2:
+                            alterarDadosTratador(tratadores,numTratadores);
+                            break;
+                        case 3:
+                            alterarEstadoTratador(tratadores,numTratadores);
+                            break;
+                        case 4:
+                            consultarDadosTratador(tratadores,numTratadores);
+                            break;
+                        case 5:
+                            listarTratadoresAtivos(tratadores,numTratadores);
+                            break;
+                        case 6:
+                            pesquisarTratadorNome(tratadores,numTratadores);
+                            break;
+                        default:
+                            printf("Esta opcao e invalida ou nao existe!!\n");
+                            break;
+                    }
                 }
                 break;
             case 3:
-                switch (menuVisitas())
+                int opcao;
+                while(1){
+                    if((opcao=menuVisitas()) == 0)
+                        break;
+                    switch (menuVisitas())
                 {
                     case 1:
+                        /* code */
+                        break;
+                    case 2:
+                        /* code */
+                        break;
+                    case 3:
+                        /* code */
+                        break;
+                    case 4:
                         /* code */
                         break;
                     
                     default:
                         break;
                 }
-                break;
-            case 0:
-
+                }
                 break;
             default:
                 break;
