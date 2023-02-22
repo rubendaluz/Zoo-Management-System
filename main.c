@@ -285,36 +285,39 @@ void listarAnimaisPorAnoEntrada(int ano,ANIMAL animais[]){
 
 //Funções referentes ao tratadores
 // INSERIR NOVO TRATADOR
- void inserirTratador(TRATADOR *tratadores, int *numTratadores){
-    printf("Insrir novo tratador");
-    printf("Numero: ");
-    scanf("%d", &tratadores[*numTratadores].numero);
+ void inserirTratador(TRATADOR *tratadores){
+    printf("Inserir novo tratador\n");
+    tratadores[numTratadores].numero = numTratadores+1;
     printf("Nome: ");
-    scanf("%s", tratadores[*numTratadores].nome);
+    scanf("%s", tratadores[numTratadores].nome);
     printf("Telemovel: ");
-    scanf("%s", tratadores[*numTratadores].telemovel);
-    tratadores[*numTratadores].ativo = 1;
-    (*numTratadores)++;
-    printf("Tratador inserido com sucesso!");
-
+    fflush(stdin);
+    scanf("%d", &tratadores[numTratadores].telemovel);
+    tratadores[numTratadores].ativo = 1;
+    (numTratadores)++;
+    printf("Tratador inserido com sucesso!\n");
+    numTratadores++;
  }
 
 // ALTERAR DADOS DE UM TRATADOR
-  void alterarDadosTratador(TRATADOR *tratadores, int numTratadores){
-    int numero;
+  void alterarDadosTratador(TRATADOR *tratadores){
+    int numero,i,j;
     printf("Alterar dados de um tratador\n");
     printf("Numero do Tratador: ");
+    fflush(stdin);
     scanf("%d", &numero);
-    for (size_t i = 0; i < numTratadores; i++)
+    for (i = 0; i < numTratadores; i++)
     {
         if (tratadores[i].numero == numero)
         {
+            j=1;
             int opcao;
             printf("O que pretende alterar?\n");
             printf("1 - Nome\n");
             printf("2 - Telemovel\n");
             printf("3 - Cancelar\n");
             printf(">Opcao: ");
+            fflush(stdin);
             scanf("%d", &opcao);
 
             switch (opcao)
@@ -326,8 +329,9 @@ void listarAnimaisPorAnoEntrada(int ano,ANIMAL animais[]){
                 break;
             case 2:
                 printf("Insira o novo TELEMOVEL: ");
-                scanf("%c", tratadores[i].telemovel);
-                scanf("Telemovwl do tratador atualizado com sucesso!\n");
+                fflush(stdin);
+                scanf("%d", &tratadores[i].telemovel);
+                scanf("Telemovel do tratador atualizado com sucesso!\n");
                 break;
             case 3:
                 printf("Operacao cancelada.\n");
@@ -337,16 +341,17 @@ void listarAnimaisPorAnoEntrada(int ano,ANIMAL animais[]){
                 break;
             }
         }       
-        printf("Tratador nao encontrado\n");
     }
+    if(j!=1)
+        printf("Tratador nao encontrado\n");
     
   }
 
 
 
 // ALTERAR ESTADO DE UM TRATADOR
-void alterarEstadoTratador(TRATADOR *tratadores, int numTratadores){
-    int numero,i, ativo;
+void alterarEstadoTratador(TRATADOR *tratadores){
+    int numero,i,encontrado;
     printf("Ativar/Desativar um tratador\n");
     printf("Insira o numero do tratador: ");
     scanf("%d", &numero);
@@ -354,22 +359,21 @@ void alterarEstadoTratador(TRATADOR *tratadores, int numTratadores){
     {
         if (tratadores[i].numero == numero)
         {
-           printf("Ativo (1) ou nao ativo (0): ");
-           scanf("%d", &ativo);
-           tratadores[i].ativo = ativo;
-           printf("Estado do tratador %s atualizado para %s com sucesso!\n", tratadores[i].nome, ativo ? "ativo" : "nao ativo");
-           return;
+            encontrado=1;
+            printf("Ativo (1) ou nao ativo (0): ");
+            fflush(stdin);
+            scanf("%d", &tratadores[i].ativo);
+            printf("Estado do tratador %s atualizado para %s com sucesso!\n", tratadores[i].nome, tratadores[i].ativo ? "ativo" : "nao ativo");
         }
-        
     }
-    
-    printf("Tratador com o numero %d não encontrado!\n", numero);
+    if(encontrado!=1)
+            printf("Tratador nao encontrado\n");
 }
 
 
-// CONSULTAR DADOS DE UM TRATADOOR 
-void consultarDadosTratador(TRATADOR *tratadores, int numTratadores) { 
-    int numero;
+// CONSULTAR DADOS DE UM TRATADOR 
+void consultarDadosTratador(TRATADOR *tratadores) { 
+    int numero,encontrado;
     printf("Consultar dados de um tratador\n");
     printf("Numero do tratador: ");
     scanf("%d", &numero);
@@ -377,35 +381,39 @@ void consultarDadosTratador(TRATADOR *tratadores, int numTratadores) {
     {
         if (tratadores[i].numero == numero)
         {
+            encontrado=1;
             printf("Nome: %s\n", tratadores[i].nome);
-            printf("Telefone: %s\n", tratadores[i].telemovel);
+            printf("Telefone: %d\n", tratadores[i].telemovel);
             printf("Estado: %s\n", tratadores[i].ativo ? "Ativo" : "Nao ativo");
             return;
         }
     }
-    printf("Tratador nao encontrado.\n");
+    if(encontrado!=1)
+        printf("Tratador nao encontrado\n");
 }
 
 // LISTA DOS TRATADORES ATIVOS
-void listarTratadoresAtivos(TRATADOR *tratadores, int numTratadores) {
+void listarTratadoresAtivos(TRATADOR *tratadores) {
+    int encontrado;
     printf("Lista dos tratadores ativos\n");
     for (int i = 0; i < numTratadores; i++) {
-        if (tratadores[i].ativo) {
+        if (tratadores[i].ativo == 1) {
+            encontrado = 1;
             printf("Numero: %d\n", tratadores[i].numero);
             printf("Nome: %s\n", tratadores[i].nome);
-            printf("Telemovel: %s\n", tratadores[i].telemovel);
+            printf("Telemovel: %d\n", tratadores[i].telemovel);
             printf("Ativo: %d\n", tratadores[i].ativo);
         }
     }
+    if(encontrado!=1)
+        printf("Nao existem tratadores ativos\n");
 }
 
 
-
 // PESQUISAR TRATADOR POR NOME
-void pesquisarTratadorNome(TRATADOR *tratadores, int numTratadores) {
-    char nome[50];
-    int encontrado = 0;
-    char resposta;
+void pesquisarTratadorNome(TRATADOR *tratadores) {
+    char nome[50],resposta;
+    int encontrado;
 
     do {
         printf("Pesquisar tratador por nome\n");
@@ -417,13 +425,15 @@ void pesquisarTratadorNome(TRATADOR *tratadores, int numTratadores) {
             if (strcmp(tratadores[i].nome, nome) == 0) {
                 printf("Numero: %d\n", tratadores[i].numero);
                 printf("Nome: %s\n", tratadores[i].nome);
-                printf("Telefone: %s\n", tratadores[i].telemovel);
-                printf("Ativo: %d\n", tratadores[i].ativo);
+                printf("Telefone: %d\n", tratadores[i].telemovel);
+                printf("Ativo: %d\n\n", tratadores[i].ativo);
                 encontrado = 1;
+                printf("Deseja pesquisar novamente? (S/N): ");
+                scanf(" %c", &resposta);
             }
         }
 
-        if (!encontrado) {
+        if (encontrado!=1) {
             printf("Nenhum tratador encontrado com o nome %s.\n", nome);
             printf("Deseja pesquisar novamente? (S/N): ");
             scanf(" %c", &resposta);
@@ -554,29 +564,29 @@ int main(void){
             }
                 break;
             case 2:
-                int opcao;
                 while(1){
+                    int opcao;
                     if((opcao=menuGestaoTratadores())==0)
                         break;
                     switch (opcao)
                     {
                         case 1:
-                            inserirTratador(tratadores,numTratadores);
+                            inserirTratador(tratadores);
                             break;
                         case 2:
-                            alterarDadosTratador(tratadores,numTratadores);
+                            alterarDadosTratador(tratadores);
                             break;
                         case 3:
-                            alterarEstadoTratador(tratadores,numTratadores);
+                            alterarEstadoTratador(tratadores);
                             break;
                         case 4:
-                            consultarDadosTratador(tratadores,numTratadores);
+                            consultarDadosTratador(tratadores);
                             break;
                         case 5:
-                            listarTratadoresAtivos(tratadores,numTratadores);
+                            listarTratadoresAtivos(tratadores);
                             break;
                         case 6:
-                            pesquisarTratadorNome(tratadores,numTratadores);
+                            pesquisarTratadorNome(tratadores);
                             break;
                         default:
                             printf("Esta opcao e invalida ou nao existe!!\n");
@@ -585,8 +595,8 @@ int main(void){
                 }
                 break;
             case 3:
-                int opcao;
                 while(1){
+                    int opcao;
                     if((opcao=menuVisitas()) == 0)
                         break;
                     switch (menuVisitas())
