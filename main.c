@@ -7,7 +7,7 @@
 
 //Variáveis globais
 int numAnimal = 3; //Variavel que inicia a contagem do numero dos animais
-int numTratadores = 0; //Variavel que inicia a contagem do numero de Tratadores
+int numTratadores = 1; //Variavel que inicia a contagem do numero de Tratadores
 int numVisitas = 0; //Variavel que inicia a contagem do numero de visitas marcadas
 //Estruturas 
 typedef struct data{
@@ -57,6 +57,8 @@ int pesquisarAnimal(int nAnimal,ANIMAL animais[]);
 void imprimirAnimal(int i, ANIMAL animais[]);
 void alterarDadosAnimal(ANIMAL animais[],int nAnimal);
 void consultarAnimal(int nAnimal, ANIMAL animais[]);
+void listarAnimais(ANIMAL animais[]);
+void listarAnimaisPorAnoEntrada(int ano,ANIMAL animais[]);
 void listarAnimaisPorEspecie(ANIMAL animais[]);
 void listarAnimaisEspecie(char especie[255], ANIMAL animais[]);
 int animalMaisNovo(ANIMAL animais[]);
@@ -71,6 +73,9 @@ void pesquisarTratadorNome(TRATADOR *tratadores);
 int pesquisartratadorNumero(TRATADOR tratadores[], int numero);
 //Funções para Visitas
 void marcarVisita(VISITA visitas[],ANIMAL animais[], TRATADOR tratadores[]);
+void listarVisitasDia(VISITA visitas[]);
+void listarVisitasAnimal(VISITA visitas[]);
+void listarVisitasTratador(VISITA visitas[]);
 
 
 int main(void){
@@ -102,7 +107,14 @@ int main(void){
     animais[0]=jefer;
     animais[1]=frida;
     animais[2]=dildo;
-    TRATADOR tratadores[MAX_TRATADORES];
+    TRATADOR tratadores[MAX_TRATADORES], Queiroz = {
+        .ativo = 1,
+        .nome = "Queiroz",
+        .numero = 1,
+        .telemovel = 912445512
+    };
+    tratadores[0]= Queiroz;
+
     VISITA visitas[MAX_VISITAS];
     //Variaveis
 
@@ -229,27 +241,32 @@ int main(void){
                     int opcao;
                     if((opcao=menuVisitas()) == 0)
                         break;
-                    switch (menuVisitas())
+                    switch (opcao)
                 {
                     case 1:
-                        /* code */
+                        if(numVisitas < 100){
+                            marcarVisita(visitas,animais,tratadores);
+                        }else{
+                            printf("Já não pode marcar mais consultas pois o numero maximo de marcacoes ja foi atingido.\n");
+                        }
                         break;
                     case 2:
-                        /* code */
+                        listarVisitasDia(visitas);
                         break;
                     case 3:
-                        /* code */
+                        listarVisitasAnimal(visitas);
                         break;
                     case 4:
-                        /* code */
+                        listarVisitasTratador(visitas);
                         break;
-                    
                     default:
+                        printf("Esta opcao e invalida ou nao existe!!\n");
                         break;
                 }
                 }
                 break;
             default:
+                printf("Esta opcao e invalida ou nao existe!!\n");
                 break;
         }
     }
@@ -589,7 +606,7 @@ void alterarEstadoTratador(TRATADOR *tratadores){
 
 // CONSULTAR DADOS DE UM TRATADOR 
 void consultarDadosTratador(TRATADOR *tratadores) { 
-    int numero,encontrado;
+    int numero,encontrado = 0;
     printf("Consultar dados de um tratador\n");
     printf("Numero do tratador: ");
     scanf("%d", &numero);
@@ -600,7 +617,7 @@ void consultarDadosTratador(TRATADOR *tratadores) {
             encontrado=1;
             printf("Nome: %s\n", tratadores[i].nome);
             printf("Telefone: %d\n", tratadores[i].telemovel);
-            printf("Estado: %s\n", tratadores[i].ativo ? "Ativo" : "Nao ativo");
+            printf("Estado: %d\n", tratadores[i].ativo ? "Ativo" : "Nao ativo");
             return;
         }
     }
@@ -677,7 +694,8 @@ int pesquisartratadorNumero(TRATADOR tratadores[], int numero){
             printf("Deseja inserir outro? (S/N): ");
             scanf(" %c", &resposta);
         }
-    }while(resposta != 'N' || encontrado != 1);
+        if(resposta == 'N')break;
+    }while(resposta == 'S' || encontrado != 1);
     
     return 101;
 }
@@ -695,19 +713,77 @@ void marcarVisita(VISITA visitas[],ANIMAL animais[], TRATADOR tratadores[]){
     scanf("%d", &visitas[numVisitas].hora.horas);
     printf("Insira o nome do Animal: ");
     fflush(stdin);
-    scanf("%d", animal);
+    scanf("%d", &animal);
     i_animal = pesquisarAnimal(animal,animais);
     if(i_animal != 31){
         visitas[numVisitas].animal = animais[i_animal];
         printf("insira o nome do tratador: ");
         fflush(stdin);
-        scanf("%d",tratador);
+        scanf("%d",&tratador);
         i_tratador = pesquisartratadorNumero(tratadores,tratador);
         if(i_tratador != 101){
             visitas[numVisitas].tratador = tratadores[i_tratador];
         }
     }
-    
-   
+    numVisitas++;
+}
 
+void listarVisitasDia(VISITA visitas[]){
+    DATA data;
+    int i,existem_visitas;
+    printf("Insira a data para que pretende no formato [dd mm aaaa].\n");
+    printf("Data: ");
+    scanf("%d%d%d", &data.dia, &data.mes, &data.ano);
+    printf("Visitas para o dia [%d/%d/%d]:\n",data.dia, data.mes, data.ano);
+    for(i=0;i<numVisitas;i++){
+        if(visitas[i].data.dia == data.dia &&
+        visitas[i].data.mes == data.mes &&
+        visitas[i].data.ano == data.ano){
+            printf("Visita-Hora:%d:00-Animal:%d, %s - Tratador: %s[%d].\n", 
+            visitas[i].hora.horas, visitas[i].animal.numero, visitas[i].animal.nome,
+            visitas[i].tratador.nome, visitas[i].tratador.telemovel);
+            existem_visitas = 1;
+        }
+    }
+    if(existem_visitas!=1){
+        printf("Nao existem visitas para este dia.\n");
+    }
+}
+void listarVisitasAnimal(VISITA visitas[]){
+    char nome_animal[255];
+    int i, existem_visitas;
+    printf("Insira o nome do animal: ");
+    scanf("%s", nome_animal);
+    printf("Visitas marcadas para o %s.\n", nome_animal);
+    for(i=0;i<numVisitas;i++){
+        if(strcmpi(nome_animal,visitas[i].animal.nome)==0){
+            printf("Visita-Data:%d/%d/%d, %d:00-Animal:%d, %s - Tratador: %s[%d].\n",
+            visitas[i].data.dia,visitas[i].data.mes, visitas[i].data.ano,visitas[i].hora.horas,
+            visitas[i].animal.numero, visitas[i].animal.nome,visitas[i].tratador.nome, 
+            visitas[i].tratador.telemovel);
+            existem_visitas = 1;
+        }
+    }
+    if(existem_visitas!=1){
+        printf("Nao existem visitas para este animal.\n");
+    }
+}
+void listarVisitasTratador(VISITA visitas[]){
+    char nome_tratador[255];
+    int i, existem_visitas;
+    printf("Insira o nome do tratador: ");
+    scanf("%s", nome_tratador);
+    printf("Visitas marcadas para o %s.\n", nome_tratador);
+    for(i=0;i<numVisitas;i++){
+        if(strcmpi(nome_tratador,visitas[i].tratador.nome)==0){
+            printf("Visita-Data:%d/%d/%d, %d:00-Animal:%d, %s - Tratador: %s[%d].\n",
+            visitas[i].data.dia,visitas[i].data.mes, visitas[i].data.ano,visitas[i].hora.horas,
+            visitas[i].animal.numero, visitas[i].animal.nome,visitas[i].tratador.nome, 
+            visitas[i].tratador.telemovel);
+            existem_visitas = 1;
+        }
+    }
+    if(existem_visitas!=1){
+        printf("Nao existem visitas para este tratador.\n");
+    }
 }
