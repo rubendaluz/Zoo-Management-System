@@ -730,7 +730,7 @@ void marcarVisita(VISITA visitas[],ANIMAL animais[], TRATADOR tratadores[]){
 
 void listarVisitasDia(VISITA visitas[]){
     DATA data;
-    int i,existem_visitas;
+    int i,existem_visitas = 0;
     printf("Insira a data para que pretende no formato [dd mm aaaa].\n");
     printf("Data: ");
     scanf("%d%d%d", &data.dia, &data.mes, &data.ano);
@@ -751,7 +751,7 @@ void listarVisitasDia(VISITA visitas[]){
 }
 void listarVisitasAnimal(VISITA visitas[]){
     char nome_animal[255];
-    int i, existem_visitas;
+    int i, existem_visitas = 0;
     printf("Insira o nome do animal: ");
     scanf("%s", nome_animal);
     printf("Visitas marcadas para o %s.\n", nome_animal);
@@ -770,7 +770,7 @@ void listarVisitasAnimal(VISITA visitas[]){
 }
 void listarVisitasTratador(VISITA visitas[]){
     char nome_tratador[255];
-    int i, existem_visitas;
+    int i, existem_visitas = 0;
     printf("Insira o nome do tratador: ");
     scanf("%s", nome_tratador);
     printf("Visitas marcadas para o %s.\n", nome_tratador);
