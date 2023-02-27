@@ -213,7 +213,11 @@ int main(void){
                     switch (opcao)
                     {
                         case 1:
-                            inserirTratador(tratadores);
+                            if(numTratadores<MAX_TRATADORES){
+                                inserirTratador(tratadores);
+                            }else{
+                                printf("Não pode inserir mais tratadores pois já atingiu o limite maximo de tratadores\n");
+                            }
                             break;
                         case 2:
                             alterarDadosTratador(tratadores);
@@ -244,7 +248,7 @@ int main(void){
                     switch (opcao)
                 {
                     case 1:
-                        if(numVisitas < 100){
+                        if(numVisitas < MAX_VISITAS){
                             marcarVisita(visitas,animais,tratadores);
                         }else{
                             printf("Já não pode marcar mais consultas pois o numero maximo de marcacoes ja foi atingido.\n");
